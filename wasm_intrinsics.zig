@@ -1,1 +1,1 @@
-export const _wasm_intrinsics_wat = @embedFile("binaryen/src/passes/wasm-intrinsics.wat").*;
+export const _wasm_intrinsics_wat = @embedFile("src/passes/wasm-intrinsics.wat").*;
