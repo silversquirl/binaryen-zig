@@ -312,7 +312,8 @@ pub fn build(b: *std.Build) void {
     lib.linkLibC();
     lib.linkLibCpp();
     lib.install();
-    lib.installHeader("src/binaryen-c.h", "binaryen-c.h");
+    lib.installHeader("src/binaryen-c.h", "binaryen/binaryen.h");
+    lib.installHeader("src/wasm-delegations.def", "binaryen/wasm-delegations.def");
 }
 
 fn extraFlags(b: *std.Build, flags: []const []const u8, more: []const []const u8) []const []const u8 {
