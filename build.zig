@@ -314,6 +314,18 @@ pub fn build(b: *std.Build) void {
     lib.install();
     lib.installHeader("src/binaryen-c.h", "binaryen/binaryen.h");
     lib.installHeader("src/wasm-delegations.def", "binaryen/wasm-delegations.def");
+
+    const mod = b.addModule("binaryen", .{
+        .source_file = .{ .path = "binaryen.zig" },
+    });
+    const tests = b.addTest(.{
+        .root_source_file = .{ .path = "test.zig" },
+    });
+    tests.addModule("binaryen", mod);
+    tests.linkLibC();
+    tests.linkLibrary(lib);
+
+    b.step("test", "run wrapper library tests").dependOn(&tests.run().step);
 }
 
 fn extraFlags(b: *std.Build, flags: []const []const u8, more: []const []const u8) []const []const u8 {
