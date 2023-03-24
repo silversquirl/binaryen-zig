@@ -42,6 +42,9 @@ pub fn build(b: *std.Build) void {
         // TODO: remove once this is resolved: https://github.com/WebAssembly/binaryen/pull/2314
         "-Wno-implicit-int-float-conversion",
         "-Wno-unknown-warning-option",
+
+        // FIXME: only needed in release
+        "-Wno-unused-but-set-variable",
     };
 
     // TODO: wasm target? Might require emscripten though
