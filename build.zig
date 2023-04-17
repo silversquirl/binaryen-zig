@@ -314,7 +314,7 @@ pub fn build(b: *std.Build) void {
 
     lib.linkLibC();
     lib.linkLibCpp();
-    lib.install();
+    b.installArtifact(lib);
     lib.installHeader("src/binaryen-c.h", "binaryen/binaryen.h");
     lib.installHeader("src/wasm-delegations.def", "binaryen/wasm-delegations.def");
 
@@ -328,7 +328,7 @@ pub fn build(b: *std.Build) void {
     tests.linkLibC();
     tests.linkLibrary(lib);
 
-    b.step("test", "run wrapper library tests").dependOn(&tests.run().step);
+    b.step("test", "run wrapper library tests").dependOn(&b.addRunArtifact(tests).step);
 }
 
 fn extraFlags(b: *std.Build, flags: []const []const u8, more: []const []const u8) []const []const u8 {
