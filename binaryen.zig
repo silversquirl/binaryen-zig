@@ -11,7 +11,7 @@ pub fn freeEmit(buf: []u8) void {
 pub const Module = opaque {
     pub fn init() *Module {
         const mod = byn.BinaryenModuleCreate();
-        return @ptrCast(*Module, mod);
+        return @ptrCast(mod);
     }
     pub fn deinit(self: *Module) void {
         byn.BinaryenModuleDispose(self.c());
@@ -20,12 +20,12 @@ pub const Module = opaque {
     // TODO: error handling
     pub fn parseText(wat: [*:0]const u8) *Module {
         const mod = byn.BinaryenModuleParse(wat);
-        return @ptrCast(*Module, mod);
+        return @ptrCast(mod);
     }
     // TODO: error handling
     pub fn readBinary(wasm: []const u8) *Module {
         const mod = byn.BinaryenModuleRead(@constCast(wasm.ptr), wasm.len);
-        return @ptrCast(*Module, mod);
+        return @ptrCast(mod);
     }
 
     pub fn emitText(self: *Module) [:0]u8 {
@@ -34,8 +34,9 @@ pub const Module = opaque {
     }
     pub fn emitBinary(self: *Module, source_map_url: ?[*:0]const u8) EmitBinaryResult {
         const result = byn.BinaryenModuleAllocateAndWrite(self.c(), source_map_url);
+        const binary_ptr: [*]u8 = @ptrCast(result.binary);
         return .{
-            .binary = @ptrCast([*]u8, result.binary)[0..result.binaryBytes],
+            .binary = binary_ptr[0..result.binaryBytes],
             .source_map = std.mem.span(result.sourceMap),
         };
     }
@@ -52,29 +53,29 @@ pub const Module = opaque {
         const func = byn.BinaryenAddFunction(
             self.c(),
             name,
-            @enumToInt(params),
-            @enumToInt(results),
-            @constCast(@ptrCast([*]const usize, var_types.ptr)),
-            @intCast(u32, var_types.len),
+            @intFromEnum(params),
+            @intFromEnum(results),
+            @constCast(@ptrCast(var_types.ptr)),
+            @intCast(var_types.len),
             body.c(),
         );
-        return @ptrCast(*Function, func);
+        return @ptrCast(func);
     }
 
     inline fn c(self: *Module) byn.BinaryenModuleRef {
-        return @ptrCast(byn.BinaryenModuleRef, self);
+        return @ptrCast(self);
     }
 };
 
 pub const Expression = opaque {
     inline fn c(self: *Expression) byn.BinaryenExpressionRef {
-        return @ptrCast(byn.BinaryenExpressionRef, self);
+        return @ptrCast(self);
     }
 };
 
 pub const Function = opaque {
     inline fn c(self: *Function) byn.BinaryenFunctionRef {
-        return @ptrCast(byn.BinaryenFunctionRef, self);
+        return @ptrCast(self);
     }
 };
 
@@ -82,88 +83,88 @@ pub const Type = enum(usize) {
     _,
 
     pub fn none() Type {
-        return @intToEnum(Type, byn.BinaryenTypeNone());
+        return @enumFromInt(byn.BinaryenTypeNone());
     }
     pub fn int32() Type {
-        return @intToEnum(Type, byn.BinaryenTypeInt32());
+        return @enumFromInt(byn.BinaryenTypeInt32());
     }
     pub fn int64() Type {
-        return @intToEnum(Type, byn.BinaryenTypeInt64());
+        return @enumFromInt(byn.BinaryenTypeInt64());
     }
     pub fn float32() Type {
-        return @intToEnum(Type, byn.BinaryenTypeFloat32());
+        return @enumFromInt(byn.BinaryenTypeFloat32());
     }
     pub fn float64() Type {
-        return @intToEnum(Type, byn.BinaryenTypeFloat64());
+        return @enumFromInt(byn.BinaryenTypeFloat64());
     }
     pub fn vec128() Type {
-        return @intToEnum(Type, byn.BinaryenTypeVec128());
+        return @enumFromInt(byn.BinaryenTypeVec128());
     }
     pub fn funcref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeFuncref());
+        return @enumFromInt(byn.BinaryenTypeFuncref());
     }
     pub fn externref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeExternref());
+        return @enumFromInt(byn.BinaryenTypeExternref());
     }
     pub fn anyref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeAnyref());
+        return @enumFromInt(byn.BinaryenTypeAnyref());
     }
     pub fn eqref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeEqref());
+        return @enumFromInt(byn.BinaryenTypeEqref());
     }
     pub fn i31ref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeI31ref());
+        return @enumFromInt(byn.BinaryenTypeI31ref());
     }
     pub fn structref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeStructref());
+        return @enumFromInt(byn.BinaryenTypeStructref());
     }
     pub fn arrayref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeArrayref());
+        return @enumFromInt(byn.BinaryenTypeArrayref());
     }
     pub fn stringref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeStringref());
+        return @enumFromInt(byn.BinaryenTypeStringref());
     }
     pub fn stringviewWTF8() Type {
-        return @intToEnum(Type, byn.BinaryenTypeStringviewWTF8());
+        return @enumFromInt(byn.BinaryenTypeStringviewWTF8());
     }
     pub fn stringviewWTF16() Type {
-        return @intToEnum(Type, byn.BinaryenTypeStringviewWTF16());
+        return @enumFromInt(byn.BinaryenTypeStringviewWTF16());
     }
     pub fn stringviewIter() Type {
-        return @intToEnum(Type, byn.BinaryenTypeStringviewIter());
+        return @enumFromInt(byn.BinaryenTypeStringviewIter());
     }
     pub fn nullref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeNullref());
+        return @enumFromInt(byn.BinaryenTypeNullref());
     }
     pub fn nullExternref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeNullExternref());
+        return @enumFromInt(byn.BinaryenTypeNullExternref());
     }
     pub fn nullFuncref() Type {
-        return @intToEnum(Type, byn.BinaryenTypeNullFuncref());
+        return @enumFromInt(byn.BinaryenTypeNullFuncref());
     }
     pub fn unreachable_() Type {
-        return @intToEnum(Type, byn.BinaryenTypeUnreachable());
+        return @enumFromInt(byn.BinaryenTypeUnreachable());
     }
 
     /// Not a real type. Used as the last parameter to BinaryenBlock to let
     /// the API figure out the type instead of providing one.
     pub fn auto() Type {
-        return @intToEnum(Type, byn.BinaryenTypeAuto());
+        return @enumFromInt(byn.BinaryenTypeAuto());
     }
 
     pub fn create(value_types: []const Type) Type {
-        return @intToEnum(Type, byn.BinaryenTypeCreate(
-            @constCast(@ptrCast([*]const usize, value_types.ptr)),
-            @intCast(u32, value_types.len),
+        return @enumFromInt(byn.BinaryenTypeCreate(
+            @constCast(@ptrCast(value_types.ptr)),
+            @intCast(value_types.len),
         ));
     }
 
     pub fn arity(self: Type) u32 {
-        return byn.BinaryenTypeArity(@enumToInt(self));
+        return byn.BinaryenTypeArity(@intFromEnum(self));
     }
     pub fn expand(self: Type, allocator: std.mem.Allocator) ![]Type {
         var buf = try allocator.alloc(Type, self.arity());
-        byn.BinaryenTypeExpand(@enumToInt(self), @ptrCast([*]usize, buf.ptr));
+        byn.BinaryenTypeExpand(@intFromEnum(self), @ptrCast(buf.ptr));
         return buf;
     }
 };

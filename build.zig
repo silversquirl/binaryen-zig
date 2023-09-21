@@ -16,10 +16,10 @@ pub fn build(b: *std.Build) void {
 
     lib.defineCMacro("BUILD_STATIC_LIBRARY", null);
 
-    lib.addIncludePath("src");
+    lib.addIncludePath(.{ .path = "src" });
     if (dwarf) {
         lib.defineCMacro("BUILD_LLVM_DWARF", null);
-        lib.addIncludePath("third_party/llvm-project/include");
+        lib.addIncludePath(.{ .path = "third_party/llvm-project/include" });
     }
     if (!assertions) {
         lib.defineCMacro("NDEBUG", null);
@@ -229,10 +229,10 @@ pub fn build(b: *std.Build) void {
         "src/wasm/wat-parser.cpp",
     }, flags);
     // wasm-debug.cpp includes LLVM header using std::iterator (deprecated in C++17)
-    lib.addCSourceFile(
-        "src/wasm/wasm-debug.cpp",
-        extraFlags(b, flags, &.{"-Wno-deprecated-declarations"}),
-    );
+    lib.addCSourceFile(.{
+        .file = .{ .path = "src/wasm/wasm-debug.cpp" },
+        .flags = extraFlags(b, flags, &.{"-Wno-deprecated-declarations"}),
+    });
 
     if (dwarf) {
         lib.addCSourceFiles(&.{
@@ -310,7 +310,10 @@ pub fn build(b: *std.Build) void {
         }));
     }
 
-    lib.addCSourceFile("src/binaryen-c.cpp", flags);
+    lib.addCSourceFile(.{
+        .file = .{ .path = "src/binaryen-c.cpp" },
+        .flags = flags,
+    });
 
     lib.linkLibC();
     lib.linkLibCpp();
